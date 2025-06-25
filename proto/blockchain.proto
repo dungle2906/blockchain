@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package blockchain;
+option go_package = "go_blockchain/proto";
+
+// Transaction data
+message Transaction {
+  bytes sender = 1;
+  bytes receiver = 2;
+  double amount = 3;
+  int64 timestamp = 4;
+  bytes signature = 5;
+}
+
+// Block data
+message Block {
+  bytes hash = 1;
+  bytes prev_hash = 2;
+  bytes merkle_root = 3;
+  int64 timestamp = 4;
+  repeated Transaction transactions = 5;
+}
+
+// Proposal from leader
+message BlockProposal {
+  Block block = 1;
+}
+
+// Vote from follower
+message Vote {
+  bool accepted = 1;
+  bytes block_hash = 2;
+}
+
+// Empty struct
+message Empty {}
+
+// Response with message
+message Response {
+  bool success = 1;
+  string message = 2;
+}
+
+// Block request by height
+message BlockHeight {
+  int64 height = 1;
+}
+
+// gRPC Service
+service BlockchainService {
+  rpc SendTransaction(Transaction) returns (Response);
+  rpc ProposeBlock(BlockProposal) returns (Vote);
+  rpc SubmitVote(Vote) returns (Response);
+  rpc GetBlockByHash(BlockProposal) returns (Block);
+  rpc GetLatestBlock(Empty) returns (Block);
+  rpc GetBlockByHeight(BlockHeight) returns (Block);
+}
